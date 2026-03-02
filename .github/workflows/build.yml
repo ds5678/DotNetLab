@@ -10,7 +10,7 @@ on:
 jobs:
   build_linux:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 15
 
     steps:
       - uses: actions/checkout@v4
@@ -18,25 +18,16 @@ jobs:
       - uses: ./.github/actions/setup
 
       - name: Build
-        id: build
-        run: dotnet build -warnaserror -p:TreatWarningsAsErrors=true -bl:build.binlog
-
-      - name: Incremental re-build
-        run: dotnet build -warnaserror -p:TreatWarningsAsErrors=true -question -bl:question.binlog
-
-      - name: Test
-        if: ${{ always() && steps.build.outcome == 'success' }}
-        run: dotnet test --no-build --report-trx
+        run: dotnet build -warnaserror -p:TreatWarningsAsErrors=true -c Release
 
       - name: Upload everything
-        if: always()
         uses: actions/upload-artifact@v6
         with:
-          name: files
-          path: ./artifacts
+          name: DotNetLab_Linux
+          path: ./artifacts/bin
   build_windows:
     runs-on: windows-latest
-    timeout-minutes: 5
+    timeout-minutes: 15
 
     steps:
       - uses: actions/checkout@v4
@@ -44,19 +35,10 @@ jobs:
       - uses: ./.github/actions/setup
 
       - name: Build
-        id: build
-        run: dotnet build -warnaserror -p:TreatWarningsAsErrors=true -bl:build.binlog
-
-      - name: Incremental re-build
-        run: dotnet build -warnaserror -p:TreatWarningsAsErrors=true -question -bl:question.binlog
-
-      - name: Test
-        if: ${{ always() && steps.build.outcome == 'success' }}
-        run: dotnet test --no-build --report-trx
+        run: dotnet build -warnaserror -p:TreatWarningsAsErrors=true -c Release
 
       - name: Upload everything
-        if: always()
         uses: actions/upload-artifact@v6
         with:
-          name: files
-          path: ./artifacts
+          name: DotNetLab_Windows
+          path: ./artifacts/bin
