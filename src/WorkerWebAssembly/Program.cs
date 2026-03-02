@@ -53,7 +53,6 @@ static void PostMessage(WorkerOutputMessage message)
     Imports.PostMessage(JsonSerializer.Serialize(message, WorkerJsonContext.Default.WorkerOutputMessage));
 }
 
-[SupportedOSPlatform("browser")]
 partial class Program;
 
 [JsonSourceGenerationOptions(JsonSerializerDefaults.Web)]
