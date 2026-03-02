@@ -8,7 +8,7 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  build_linux:
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
@@ -28,11 +28,35 @@ jobs:
         if: ${{ always() && steps.build.outcome == 'success' }}
         run: dotnet test --no-build --report-trx
 
-      - name: Upload logs
+      - name: Upload everything
         if: always()
         uses: actions/upload-artifact@v6
         with:
-          name: logs
-          path: |
-            *.binlog
-            **/TestResults/*.*
+          name: files
+          path: ./artifacts
+  build_windows:
+    runs-on: windows-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/setup
+
+      - name: Build
+        id: build
+        run: dotnet build -warnaserror -p:TreatWarningsAsErrors=true -bl:build.binlog
+
+      - name: Incremental re-build
+        run: dotnet build -warnaserror -p:TreatWarningsAsErrors=true -question -bl:question.binlog
+
+      - name: Test
+        if: ${{ always() && steps.build.outcome == 'success' }}
+        run: dotnet test --no-build --report-trx
+
+      - name: Upload everything
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: files
+          path: ./artifacts
