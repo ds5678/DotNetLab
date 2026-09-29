@@ -24,10 +24,10 @@ jobs:
 
       - name: Build
         id: build
-        run: dotnet build -c Release -warnaserror -p:TreatWarningsAsErrors=true -bl:build.binlog
+        run: dotnet build -warnaserror -p:TreatWarningsAsErrors=true -bl:build.binlog
 
       - name: Incremental re-build
-        run: dotnet build -c Release -warnaserror -p:TreatWarningsAsErrors=true -question -bl:question.binlog
+        run: dotnet build -warnaserror -p:TreatWarningsAsErrors=true -question -bl:question.binlog
 
       - name: Check BOM changes
         if: always()
@@ -63,7 +63,7 @@ jobs:
       - uses: ./.github/actions/setup
 
       - name: Build
-        run: dotnet build -c Release -warnaserror -p:TreatWarningsAsErrors=true -p:DotNetLabUseCompilerToolset=false -bl
+        run: dotnet build -warnaserror -p:TreatWarningsAsErrors=true -p:DotNetLabUseCompilerToolset=false -bl
 
       - name: Upload logs
         if: always()
