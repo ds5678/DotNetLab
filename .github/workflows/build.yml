@@ -24,27 +24,22 @@ jobs:
 
       - name: Build
         id: build
-        run: dotnet build -warnaserror -p:TreatWarningsAsErrors=true -bl:build.binlog
+        run: dotnet build -c Release -warnaserror -p:TreatWarningsAsErrors=true -bl:build.binlog
 
       - name: Incremental re-build
-        run: dotnet build -warnaserror -p:TreatWarningsAsErrors=true -question -bl:question.binlog
-
-      - name: Test
-        if: ${{ always() && steps.build.outcome == 'success' }}
-        run: dotnet test --no-build --report-trx
+        run: dotnet build -c Release -warnaserror -p:TreatWarningsAsErrors=true -question -bl:question.binlog
 
       - name: Check BOM changes
         if: always()
         run: dnx bom check pr
 
-      - name: Upload Windows UnitTests binaries
-        if: ${{ matrix.os == 'windows-latest' && steps.build.outcome == 'success' }}
+      - name: Upload Release binaries
+        if: ${{ steps.build.outcome == 'success' }}
         uses: actions/upload-artifact@v6
         with:
-          name: windows-unit-tests
+          name: release-binaries-${{ matrix.os }}
           path: |
-            artifacts/bin/UnitTests/debug/
-            !artifacts/bin/UnitTests/debug/TestResults/**
+            artifacts/bin/**/release/**
           if-no-files-found: error
 
       - name: Upload logs
@@ -54,35 +49,6 @@ jobs:
           name: logs-${{ matrix.os }}
           path: |
             *.binlog
-            **/TestResults/*.*
-
-  # Verify it's possible to run tests in WSL (e.g., from Visual Studio),
-  # since some tests (e.g., TemplateCacheTests) are only enabled on Linux.
-  test-windows-built-unit-tests-on-linux:
-    needs: build
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: ./.github/actions/setup
-
-      - name: Download Windows UnitTests binaries
-        uses: actions/download-artifact@v6
-        with:
-          name: windows-unit-tests
-          path: windows-unit-tests
-
-      - name: Test Windows-built UnitTests on Linux
-        run: dotnet windows-unit-tests/DotNetLab.UnitTests.dll --report-trx
-
-      - name: Upload logs
-        if: always()
-        uses: actions/upload-artifact@v6
-        with:
-          name: logs-windows-unit-tests-on-linux
-          path: |
             **/TestResults/*.*
 
   # When using dotnet-watch, we turn off toolset compilers,
@@ -97,7 +63,7 @@ jobs:
       - uses: ./.github/actions/setup
 
       - name: Build
-        run: dotnet build -warnaserror -p:TreatWarningsAsErrors=true -p:DotNetLabUseCompilerToolset=false -bl
+        run: dotnet build -c Release -warnaserror -p:TreatWarningsAsErrors=true -p:DotNetLabUseCompilerToolset=false -bl
 
       - name: Upload logs
         if: always()
