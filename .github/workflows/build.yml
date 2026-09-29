@@ -29,6 +29,10 @@ jobs:
       - name: Incremental re-build
         run: dotnet build -warnaserror -p:TreatWarningsAsErrors=true -question -bl:question.binlog
 
+      - name: Publish server
+        if: ${{ steps.build.outcome == 'success' }}
+        run: dotnet publish ./src/Server/Server.csproj --no-build --no-restore -bl:publish.binlog
+
       - name: Check BOM changes
         if: always()
         run: dnx bom check pr
@@ -40,6 +44,7 @@ jobs:
           name: build-binaries-${{ matrix.os }}
           path: |
             artifacts/bin/**/debug/**
+            artifacts/publish/Server/debug/**
           if-no-files-found: error
 
       - name: Upload logs
