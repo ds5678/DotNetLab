@@ -33,13 +33,13 @@ jobs:
         if: always()
         run: dnx bom check pr
 
-      - name: Upload Release binaries
+      - name: Upload build binaries
         if: ${{ steps.build.outcome == 'success' }}
         uses: actions/upload-artifact@v6
         with:
-          name: release-binaries-${{ matrix.os }}
+          name: build-binaries-${{ matrix.os }}
           path: |
-            artifacts/bin/**/release/**
+            artifacts/bin/**/debug/**
           if-no-files-found: error
 
       - name: Upload logs
